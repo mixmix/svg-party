@@ -1,3 +1,5 @@
+const h = require('./h')
+
 const svg = h('svg', {
   viewBox: '0 0 200 100',
   width: '200px'
@@ -21,19 +23,3 @@ setInterval(() => {
   var g = amplitude / 2 * Math.sin(x) + amplitude / 2
   circle.setAttribute('fill', `rgb(255, 0, ${g}`)
 }, 20)
-
-// helper
-
-function h (tag, opts = {}) {
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tag)
-  if (tag === 'svg') {
-    if (!opts.viewBox) throw Error('svg objects require viewBox')
-    if (!opts.height && !opts.width) throw Error('svg requires width or height')
-    el.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-  }
-
-  for (var key in opts) {
-    el.setAttribute(key, opts[key])
-  }
-  return el
-}
