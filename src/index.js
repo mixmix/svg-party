@@ -1,24 +1,61 @@
 const h = require('./h')
 const hexGrid = require('./hex-grid')
 
+document.body.style.setProperty('margin', 0)
+
 const svg = h('svg', {
-  viewBox: '-200 -200 400 400',
-  width: '800px'
+  viewBox: '-300 -200 600 400',
+  height: '100vh'
 })
+svg.style.setProperty('width', '100%')
+svg.style.setProperty('max-height', '100vh')
 document.body.appendChild(svg)
 
-const grid = hexGrid({ rings: 4, r: 10 })
+const dotRadius = 6
+const points = hexGrid({ rings: 30, r: dotRadius })
+  .filter(vec => {
+    return vec[0] - dotRadius > -300 && vec[0] + dotRadius < 300 &&
+    vec[1] - dotRadius > -200 && vec[1] + dotRadius < 200
+  })
 
-grid.forEach(coord => {
-  svg.appendChild(
-    h('circle', {
-      cx: coord[0],
-      cy: coord[1],
-      r: 8,
-      fill: 'rgb(255, 0, 0)'
-    })
-  )
+const circles = points.map(vec => {
+  return h('circle', {
+    cx: vec[0],
+    cy: vec[1],
+    r: dotRadius - 1,
+    // fill: 'rgb(255, 100, 255)',
+    fill: 'rgb(0,0,0)',
+    'data-dist': vecDist(vec)
+  })
 })
+
+circles.forEach(circle => svg.appendChild(circle))
+
+var t = 0
+const step = 1
+
+setInterval(() => {
+  circles.forEach(circle => {
+    const dist = Number(circle.dataset.dist)
+    const wavelength = 80
+    const min = 2
+    const amplitude = dotRadius - 1 - min
+    const shortWave = amplitude * (Math.cos((2 * Math.PI) / wavelength * (dist - t)) + 1) / 2 + min
+    // const shortWave = 1
+    const longWave = (Math.cos((2 * Math.PI) / 600 * dist) + 1) / 2
+    // const longWave = 1
+    const r = shortWave * longWave
+    circle.setAttribute('r', r)
+  })
+  t = t + step
+}, 60)
+
+function vecDist (a, b = [0, 0]) {
+  return Math.sqrt(
+    (a[0] - b[0]) * (a[0] - b[0]) +
+    (a[1] - b[1]) * (a[1] - b[1])
+  )
+}
 
 // oscillate the color!
 // var x = 0

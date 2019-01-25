@@ -13,20 +13,19 @@ module.exports = function hexGrid ({ cx = 0, cy = 0, rings, r }) {
   var results = [[0, 0]]
 
   for (var ring = 1; ring <= rings; ring++) {
-    // get the vertices of the ring
-    const vertices = verticesPrototype.map(vec => vecScale(vec, ring))
+    var points = verticesPrototype
+      .map(vec => vecScale(vec, ring))
+      .reduce((soFar, _, j, vertices) => {
+        var start = vertices[j]
+        var end = vertices[j + 1] || vertices[0] // loop for last vertex!
 
-    var points = []
-    vertices.forEach((_, j) => {
-      var start = vertices[j]
-      var end = vertices[j + 1] || vertices[0] // loop for last vertex!
+        var step = vecScale(vecSub(end, start), 1 / ring)
 
-      var step = vecScale(vecSub(end, start), 1 / ring)
-
-      for (var k = 0; k < ring; k++) {
-        points.push(vecAdd(start, vecScale(step, k)))
-      }
-    })
+        for (var k = 0; k < ring; k++) {
+          soFar.push(vecAdd(start, vecScale(step, k)))
+        }
+        return soFar
+      }, [])
 
     results = [...results, ...points]
   }
